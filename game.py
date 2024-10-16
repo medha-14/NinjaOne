@@ -9,8 +9,11 @@ SCREEN_HEIGHT = int(SCREEN_WIDTH * 0.8)
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('Shooter')
 
+clock = pygame.time.Clock()
+FPS = 60
 moving_left = False
 moving_right = False
+
 BG = (144, 201, 120)
 
 def draw_bg():
@@ -61,6 +64,9 @@ enemy = Soldier('enemy', 400, 200, 3, 5)
 run = True
 while run:
 
+	clock.tick(FPS)
+
+	draw_bg()
 
 	player.draw()
 	enemy.draw()
@@ -71,7 +77,7 @@ while run:
 		
 		if event.type == pygame.QUIT:
 			run = False
-   
+		
 		if event.type == pygame.KEYDOWN:
 			if event.key == pygame.K_a:
 				moving_left = True
@@ -79,6 +85,7 @@ while run:
 				moving_right = True
 			if event.key == pygame.K_ESCAPE:
 				run = False
+
 
 		if event.type == pygame.KEYUP:
 			if event.key == pygame.K_a:
