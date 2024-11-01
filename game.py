@@ -10,14 +10,12 @@ SCREEN_HEIGHT = int(SCREEN_WIDTH * 0.8)
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('Shooter')
 
-#set framerate
 clock = pygame.time.Clock()
 FPS = 60
 
-#define game variables
 GRAVITY = 0.75
+TILE_SIZE = 40
 
-#define player action variables
 moving_left = False
 moving_right = False
 shoot = False
@@ -177,10 +175,11 @@ class Bullet(pygame.sprite.Sprite):
 			if player.alive:
 				player.health -= 5
 				self.kill()
-		if pygame.sprite.spritecollide(enemy, bullet_group, False):
-			if enemy.alive:
-				enemy.health -= 25
-				self.kill()
+		for enemy in enemy_group:
+			if pygame.sprite.spritecollide(enemy, bullet_group, False):
+				if enemy.alive:
+					enemy.health -= 25
+					self.kill()
 
 
 
@@ -211,13 +210,47 @@ class Grenade(pygame.sprite.Sprite):
 		self.rect.x += dx
 		self.rect.y += dy
 
+	
+class Explosion(pygame.sprite.Sprite):
+	def __init__(self, x, y, scale):
+		pygame.sprite.Sprite.__init__(self)
+		self.images = []
+		for num in range(1, 6):
+			img = pygame.image.load(f'img/explosion/exp{num}.png').convert_alpha()
+			img = pygame.transform.scale(img, (int(img.get_width() * scale), int(img.get_height() * scale)))
+			self.images.append(img)
+		self.frame_index = 0
+		self.image = self.images[self.frame_index]
+		self.rect = self.image.get_rect()
+		self.rect.center = (x, y)
+		self.counter = 0
+
+
+	def update(self):
+		EXPLOSION_SPEED = 4
+		self.counter += 1
+
+		if self.counter >= EXPLOSION_SPEED:
+			self.counter = 0
+			self.frame_index += 1
+			if self.frame_index >= len(self.images):
+				self.kill()
+			else:
+				self.image = self.images[self.frame_index]
+
+
+
+enemy_group = pygame.sprite.Group()
 bullet_group = pygame.sprite.Group()
 grenade_group = pygame.sprite.Group()
+explosion_group = pygame.sprite.Group()
 
 
 player = Soldier('player', 200, 200, 3, 5, 20, 5)
 enemy = Soldier('enemy', 400, 200, 3, 5, 20, 0)
-
+enemy2 = Soldier('enemy', 300, 300, 3, 5, 20, 0)
+enemy_group.add(enemy)
+enemy_group.add(enemy2)
 
 
 run = True
