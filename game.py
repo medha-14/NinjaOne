@@ -210,7 +210,20 @@ class Grenade(pygame.sprite.Sprite):
 		self.rect.x += dx
 		self.rect.y += dy
 
-	
+		self.timer -= 1
+		if self.timer <= 0:
+			self.kill()
+			explosion = Explosion(self.rect.x, self.rect.y, 0.5)
+			explosion_group.add(explosion)
+			if abs(self.rect.centerx - player.rect.centerx) < TILE_SIZE * 2 and \
+				abs(self.rect.centery - player.rect.centery) < TILE_SIZE * 2:
+				player.health -= 50
+			for enemy in enemy_group:
+				if abs(self.rect.centerx - enemy.rect.centerx) < TILE_SIZE * 2 and \
+					abs(self.rect.centery - enemy.rect.centery) < TILE_SIZE * 2:
+					enemy.health -= 50
+
+
 class Explosion(pygame.sprite.Sprite):
 	def __init__(self, x, y, scale):
 		pygame.sprite.Sprite.__init__(self)
@@ -263,13 +276,16 @@ while run:
 	player.update()
 	player.draw()
 
-	enemy.update()
-	enemy.draw()
+	for enemy in enemy_group:
+		enemy.update()
+		enemy.draw()
 
 	bullet_group.update()
 	grenade_group.update()
+	explosion_group.update()
 	bullet_group.draw(screen)
 	grenade_group.draw(screen)
+	explosion_group.draw(screen)
 
 
 	if player.alive:
