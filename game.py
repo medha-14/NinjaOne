@@ -197,6 +197,20 @@ class ItemBox(pygame.sprite.Sprite):
 			self.kill()
 
 
+class HealthBar():
+	def __init__(self, x, y, health, max_health):
+		self.x = x
+		self.y = y
+		self.health = health
+		self.max_health = max_health
+
+	def draw(self, health):
+		self.health = health
+		ratio = self.health / self.max_health
+		pygame.draw.rect(screen, BLACK, (self.x - 2, self.y - 2, 154, 24))
+		pygame.draw.rect(screen, RED, (self.x, self.y, 150, 20))
+		pygame.draw.rect(screen, GREEN, (self.x, self.y, 150 * ratio, 20))
+
 
 class Bullet(pygame.sprite.Sprite):
 	def __init__(self, x, y, direction):
@@ -315,6 +329,9 @@ item_box_group.add(item_box)
 
 
 player = Soldier('player', 200, 200, 3, 5, 20, 5)
+health_bar = HealthBar(10, 10, player.health, player.health)
+
+
 enemy = Soldier('enemy', 400, 200, 3, 5, 20, 0)
 enemy2 = Soldier('enemy', 300, 300, 3, 5, 20, 0)
 enemy_group.add(enemy)
@@ -327,6 +344,7 @@ while run:
 	clock.tick(FPS)
 
 	draw_bg()
+	health_bar.draw(player.health)
 	draw_text('AMMO: ', font, WHITE, 10, 35)
 	for x in range(player.ammo):
 		screen.blit(bullet_img, (90 + (x * 10), 40))
