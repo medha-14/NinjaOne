@@ -28,7 +28,14 @@ grenade_thrown = False
 
 bullet_img = pygame.image.load('img/icons/bullet.png').convert_alpha()
 grenade_img = pygame.image.load('img/icons/grenade.png').convert_alpha()
-
+health_box_img = pygame.image.load('img/icons/health_box.png').convert_alpha()
+ammo_box_img = pygame.image.load('img/icons/ammo_box.png').convert_alpha()
+grenade_box_img = pygame.image.load('img/icons/grenade_box.png').convert_alpha()
+item_boxes = {
+	'Health'	: health_box_img,
+	'Ammo'		: ammo_box_img,
+	'Grenade'	: grenade_box_img
+}
 
 
 BG = (144, 201, 120)
@@ -320,6 +327,13 @@ while run:
 	clock.tick(FPS)
 
 	draw_bg()
+	draw_text('AMMO: ', font, WHITE, 10, 35)
+	for x in range(player.ammo):
+		screen.blit(bullet_img, (90 + (x * 10), 40))
+	draw_text('GRENADES: ', font, WHITE, 10, 60)
+	for x in range(player.grenades):
+		screen.blit(grenade_img, (135 + (x * 15), 60))
+
 
 	player.update()
 	player.draw()
