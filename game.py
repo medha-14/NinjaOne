@@ -1,5 +1,6 @@
 import pygame
 import os
+import random
 
 pygame.init()
 
@@ -10,15 +11,12 @@ SCREEN_HEIGHT = int(SCREEN_WIDTH * 0.8)
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('Shooter')
 
-#set framerate
 clock = pygame.time.Clock()
 FPS = 60
 
-#define game variables
 GRAVITY = 0.75
 TILE_SIZE = 40
 
-#define player action variables
 moving_left = False
 moving_right = False
 shoot = False
@@ -56,7 +54,6 @@ def draw_bg():
 	pygame.draw.line(screen, RED, (0, 300), (SCREEN_WIDTH, 300))
 
 
-
 class Soldier(pygame.sprite.Sprite):
 	def __init__(self, char_type, x, y, scale, speed, ammo, grenades):
 		pygame.sprite.Sprite.__init__(self)
@@ -78,6 +75,10 @@ class Soldier(pygame.sprite.Sprite):
 		self.frame_index = 0
 		self.action = 0
 		self.update_time = pygame.time.get_ticks()
+		self.move_counter = 0
+		self.vision = pygame.Rect(0, 0, 150, 20)
+		self.idling = False
+		self.idling_counter = 0
 		
 		animation_types = ['Idle', 'Run', 'Jump', 'Death']
 		for animation in animation_types:
@@ -138,6 +139,40 @@ class Soldier(pygame.sprite.Sprite):
 			bullet = Bullet(self.rect.centerx + (0.6 * self.rect.size[0] * self.direction), self.rect.centery, self.direction)
 			bullet_group.add(bullet)
 			self.ammo -= 1
+
+
+	def ai(self):
+		if self.alive and player.alive:
+			if self.idling == False and random.randint(1, 200) == 1:
+				self.update_action(0)
+				self.idling = True
+				self.idling_counter = 50
+			if self.vision.colliderect(player.rect):
+				self.update_action(0)
+				self.shoot()
+			else:
+				if self.idling == False:
+					if self.direction == 1:
+						ai_moving_right = True
+					else:
+						ai_moving_right = False
+					ai_moving_left = not ai_moving_right
+					self.move(ai_moving_left, ai_moving_right)
+					self.update_action(1)
+					self.move_counter += 1
+					self.vision.center = (self.rect.centerx + 75 * self.direction, self.rect.centery)
+
+					if self.move_counter > TILE_SIZE:
+						self.direction *= -1
+						self.move_counter *= -1
+				else:
+					self.idling_counter -= 1
+					if self.idling_counter <= 0:
+						self.idling = False
+
+
+
+
 
 
 	def update_animation(self):
@@ -222,13 +257,10 @@ class Bullet(pygame.sprite.Sprite):
 		self.direction = direction
 
 	def update(self):
-		#move bullet
 		self.rect.x += (self.direction * self.speed)
-		#check if bullet has gone off screen
 		if self.rect.right < 0 or self.rect.left > SCREEN_WIDTH:
 			self.kill()
 
-		#check collision with characters
 		if pygame.sprite.spritecollide(player, bullet_group, False):
 			if player.alive:
 				player.health -= 5
@@ -280,6 +312,7 @@ class Grenade(pygame.sprite.Sprite):
 				if abs(self.rect.centerx - enemy.rect.centerx) < TILE_SIZE * 2 and \
 					abs(self.rect.centery - enemy.rect.centery) < TILE_SIZE * 2:
 					enemy.health -= 50
+
 
 
 class Explosion(pygame.sprite.Sprite):
@@ -357,6 +390,7 @@ while run:
 	player.draw()
 
 	for enemy in enemy_group:
+		enemy.ai()
 		enemy.update()
 		enemy.draw()
 
