@@ -361,15 +361,14 @@ item_box_group.add(item_box)
 
 
 
-player = Soldier('player', 200, 200, 3, 5, 20, 5)
+player = Soldier('player', 200, 200, 1.65, 5, 20, 5)
 health_bar = HealthBar(10, 10, player.health, player.health)
 
 
-enemy = Soldier('enemy', 400, 200, 3, 5, 20, 0)
-enemy2 = Soldier('enemy', 300, 300, 3, 5, 20, 0)
+enemy = Soldier('enemy', 500, 200, 1.65, 2, 20, 0)
+enemy2 = Soldier('enemy', 300, 200, 1.65, 2, 20, 0)
 enemy_group.add(enemy)
 enemy_group.add(enemy2)
-
 
 run = True
 while run:
