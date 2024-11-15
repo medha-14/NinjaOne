@@ -62,7 +62,6 @@ def draw_text(text, font, text_col, x, y):
 
 def draw_bg():
 	screen.fill(BG)
-	pygame.draw.line(screen, RED, (0, 300), (SCREEN_WIDTH, 300))
 
 
 class Soldier(pygame.sprite.Sprite):
@@ -104,6 +103,8 @@ class Soldier(pygame.sprite.Sprite):
 		self.image = self.animation_list[self.action][self.frame_index]
 		self.rect = self.image.get_rect()
 		self.rect.center = (x, y)
+		self.width = self.image.get_width()
+		self.height = self.image.get_height()
 
 
 	def update(self):
@@ -136,9 +137,18 @@ class Soldier(pygame.sprite.Sprite):
 			self.vel_y
 		dy += self.vel_y
 
-		if self.rect.bottom + dy > 300:
-			dy = 300 - self.rect.bottom
-			self.in_air = False
+		for tile in world.obstacle_list:
+			if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
+				dx = 0
+			if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
+				if self.vel_y < 0:
+					self.vel_y = 0
+					dy = tile[1].bottom - self.rect.top
+				elif self.vel_y >= 0:
+					self.vel_y = 0
+					self.in_air = False
+					dy = tile[1].top - self.rect.bottom
+
 
 		self.rect.x += dx
 		self.rect.y += dy
@@ -343,6 +353,9 @@ class Bullet(pygame.sprite.Sprite):
 		self.rect.x += (self.direction * self.speed)
 		if self.rect.right < 0 or self.rect.left > SCREEN_WIDTH:
 			self.kill()
+		for tile in world.obstacle_list:
+			if tile[1].colliderect(self.rect):
+				self.kill()
 
 		if pygame.sprite.spritecollide(player, bullet_group, False):
 			if player.alive:
@@ -365,6 +378,8 @@ class Grenade(pygame.sprite.Sprite):
 		self.image = grenade_img
 		self.rect = self.image.get_rect()
 		self.rect.center = (x, y)
+		self.width = self.image.get_width()
+		self.height = self.image.get_height()
 		self.direction = direction
 
 	def update(self):
@@ -372,13 +387,19 @@ class Grenade(pygame.sprite.Sprite):
 		dx = self.direction * self.speed
 		dy = self.vel_y
 
-		if self.rect.bottom + dy > 300:
-			dy = 300 - self.rect.bottom
-			self.speed = 0
+		for tile in world.obstacle_list:
+			if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
+				self.direction *= -1
+				dx = self.direction * self.speed
+			if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
+				self.speed = 0
+				if self.vel_y < 0:
+					self.vel_y = 0
+					dy = tile[1].bottom - self.rect.top
+				elif self.vel_y >= 0:
+					self.vel_y = 0
+					dy = tile[1].top - self.rect.bottom	
 
-		if self.rect.left + dx < 0 or self.rect.right + dx > SCREEN_WIDTH:
-			self.direction *= -1
-			dx = self.direction * self.speed
 
 		self.rect.x += dx
 		self.rect.y += dy
