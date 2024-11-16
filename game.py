@@ -29,6 +29,10 @@ grenade = False
 grenade_thrown = False
 
 
+pine1_img = pygame.image.load('img/Background/pine1.png').convert_alpha()
+pine2_img = pygame.image.load('img/Background/pine2.png').convert_alpha()
+mountain_img = pygame.image.load('img/Background/mountain.png').convert_alpha()
+sky_img = pygame.image.load('img/Background/sky_cloud.png').convert_alpha()
 img_list = []
 for x in range(TILE_TYPES):
 	img = pygame.image.load(f'img/Tile/{x}.png')
@@ -140,6 +144,9 @@ class Soldier(pygame.sprite.Sprite):
 		for tile in world.obstacle_list:
 			if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
 				dx = 0
+				if self.char_type == 'enemy':
+					self.direction *= -1
+					self.move_counter = 0
 			if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
 				if self.vel_y < 0:
 					self.vel_y = 0
@@ -149,6 +156,10 @@ class Soldier(pygame.sprite.Sprite):
 					self.in_air = False
 					dy = tile[1].top - self.rect.bottom
 
+
+		if self.char_type == 'player':
+			if self.rect.left + dx < 0 or self.rect.right + dx > SCREEN_WIDTH:
+				dx = 0
 
 		self.rect.x += dx
 		self.rect.y += dy
@@ -235,6 +246,7 @@ class World():
 		self.obstacle_list = []
 
 	def process_data(self, data):
+		self.level_length = len(data[0])
 		for y, row in enumerate(data):
 			for x, tile in enumerate(row):
 				if tile >= 0:
