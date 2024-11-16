@@ -16,10 +16,13 @@ clock = pygame.time.Clock()
 FPS = 60
 
 GRAVITY = 0.75
+SCROLL_THRESH = 200
 ROWS = 16
 COLS = 150
 TILE_SIZE = SCREEN_HEIGHT // ROWS
 TILE_TYPES = 21
+screen_scroll = 0
+bg_scroll = 0
 level = 1
 
 moving_left = False
@@ -66,6 +69,12 @@ def draw_text(text, font, text_col, x, y):
 
 def draw_bg():
 	screen.fill(BG)
+	width = sky_img.get_width()
+	for x in range(5):
+		screen.blit(sky_img, ((x * width) - bg_scroll * 0.5, 0))
+		screen.blit(mountain_img, ((x * width) - bg_scroll * 0.6, SCREEN_HEIGHT - mountain_img.get_height() - 300))
+		screen.blit(pine1_img, ((x * width) - bg_scroll * 0.7, SCREEN_HEIGHT - pine1_img.get_height() - 150))
+		screen.blit(pine2_img, ((x * width) - bg_scroll * 0.8, SCREEN_HEIGHT - pine2_img.get_height()))
 
 
 class Soldier(pygame.sprite.Sprite):
@@ -119,6 +128,7 @@ class Soldier(pygame.sprite.Sprite):
 
 
 	def move(self, moving_left, moving_right):
+		screen_scroll = 0
 		dx = 0
 		dy = 0
 
@@ -163,6 +173,15 @@ class Soldier(pygame.sprite.Sprite):
 
 		self.rect.x += dx
 		self.rect.y += dy
+
+		if self.char_type == 'player':
+			if (self.rect.right > SCREEN_WIDTH - SCROLL_THRESH and bg_scroll < (world.level_length * TILE_SIZE) - SCREEN_WIDTH)\
+				or (self.rect.left < SCROLL_THRESH and bg_scroll > abs(dx)):
+				self.rect.x -= dx
+				screen_scroll = -dx
+
+		return screen_scroll
+
 
 
 	def shoot(self):
