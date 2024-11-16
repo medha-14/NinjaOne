@@ -224,8 +224,6 @@ class Soldier(pygame.sprite.Sprite):
 
 
 
-
-
 	def update_animation(self):
 		ANIMATION_COOLDOWN = 100
 		self.image = self.animation_list[self.action][self.frame_index]
@@ -306,6 +304,7 @@ class World():
 
 	def draw(self):
 		for tile in self.obstacle_list:
+			tile[1][0] += screen_scroll
 			screen.blit(tile[0], tile[1])
 
 
@@ -316,6 +315,9 @@ class Decoration(pygame.sprite.Sprite):
 		self.rect = self.image.get_rect()
 		self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
 
+	def update(self):
+		self.rect.x += screen_scroll
+
 
 class Water(pygame.sprite.Sprite):
 	def __init__(self, img, x, y):
@@ -324,6 +326,8 @@ class Water(pygame.sprite.Sprite):
 		self.rect = self.image.get_rect()
 		self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
 
+	def update(self):
+		self.rect.x += screen_scroll
 
 class Exit(pygame.sprite.Sprite):
 	def __init__(self, img, x, y):
@@ -332,6 +336,8 @@ class Exit(pygame.sprite.Sprite):
 		self.rect = self.image.get_rect()
 		self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
 
+	def update(self):
+		self.rect.x += screen_scroll
 
 
 class ItemBox(pygame.sprite.Sprite):
@@ -344,6 +350,7 @@ class ItemBox(pygame.sprite.Sprite):
 
 
 	def update(self):
+		self.rect.x += screen_scroll
 		if pygame.sprite.collide_rect(self, player):
 			if self.item_type == 'Health':
 				player.health += 25
@@ -381,7 +388,6 @@ class Bullet(pygame.sprite.Sprite):
 		self.direction = direction
 
 	def update(self):
-		self.rect.x += (self.direction * self.speed)
 		if self.rect.right < 0 or self.rect.left > SCREEN_WIDTH:
 			self.kill()
 		for tile in world.obstacle_list:
@@ -432,7 +438,6 @@ class Grenade(pygame.sprite.Sprite):
 					dy = tile[1].top - self.rect.bottom	
 
 
-		self.rect.x += dx
 		self.rect.y += dy
 
 		self.timer -= 1
@@ -466,6 +471,7 @@ class Explosion(pygame.sprite.Sprite):
 
 
 	def update(self):
+		self.rect.x += screen_scroll
 		EXPLOSION_SPEED = 4
 		self.counter += 1
 
@@ -558,9 +564,8 @@ while run:
 			player.update_action(1)
 		else:
 			player.update_action(0)
-		player.move(moving_left, moving_right)
-
-
+		screen_scroll = player.move(moving_left, moving_right)
+		bg_scroll -= screen_scroll
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			run = False
