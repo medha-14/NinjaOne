@@ -438,6 +438,7 @@ class Grenade(pygame.sprite.Sprite):
 					dy = tile[1].top - self.rect.bottom	
 
 
+		self.rect.x += dx + screen_scroll
 		self.rect.y += dy
 
 		self.timer -= 1
