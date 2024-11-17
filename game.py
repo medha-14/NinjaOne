@@ -222,6 +222,7 @@ class Soldier(pygame.sprite.Sprite):
 						self.idling = False
 
 
+		self.rect.x += screen_scroll
 
 
 	def update_animation(self):
