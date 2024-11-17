@@ -388,6 +388,7 @@ class Bullet(pygame.sprite.Sprite):
 		self.direction = direction
 
 	def update(self):
+		self.rect.x += (self.direction * self.speed) + screen_scroll
 		if self.rect.right < 0 or self.rect.left > SCREEN_WIDTH:
 			self.kill()
 		for tile in world.obstacle_list:
