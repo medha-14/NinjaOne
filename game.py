@@ -34,6 +34,9 @@ shoot = False
 grenade = False
 grenade_thrown = False
 
+jump_fx = pygame.mixer.Sound('audio/jump.wav')
+shot_fx = pygame.mixer.Sound('audio/shot.wav')
+grenade_fx = pygame.mixer.Sound('audio/grenade.wav')
 
 
 start_img = pygame.image.load('img/start_btn.png').convert_alpha()
